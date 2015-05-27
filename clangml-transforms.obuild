@@ -1,0 +1,13 @@
+Name: clangml-transforms
+Version: 0.1
+Authors: Pippijn van Steenhoven and Francois Berenger
+License: CecILL-C
+Synopsis: Transformations from clang AST to MemCAD AST
+obuild-ver: 1
+
+library clangml-transforms
+  oflags: -annot -w +27 -warn-error +8
+  pp: camlp4o
+  modules: for_memcad
+  src-dir: .
+  BuildDepends: clangml, batteries, dolog
