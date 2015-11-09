@@ -6,6 +6,10 @@
    int i = (ptr == 0);
    // -->
    int i = (ptr == 0) ? 1 : 0;
+   // and
+   i = (ptr == 0);
+   // -->
+   i = (ptr == 0) ? 1 : 0;
 *)
 
 open Clang
@@ -15,6 +19,7 @@ open Tests
 
 module L = BatList
 
+(* (ptr == 0) --> ((ptr == 0) ? 1 : 0) *)
 let transform_assign_expr clang e2 =
   match Tests.get_relat_or_equal_binop e2 with
   | `None -> None
@@ -43,9 +48,14 @@ let transform_decl (clang: Clang.Api.clang) =
               map_stmt v state new_stmt
           end
       end
-    (* | DeclStmt [{ d = VarDecl (ty, name, Some init) } as decl] -> *)
-    (*   (\* int i = x; --> int i; i = x; *\) *)
-    (*   failwith "not implemented yet" *)
+    | DeclStmt [{ d = VarDecl (ty, name, Some init) } as decl] ->
+      begin match transform_assign_expr clang init with
+        | None -> MapVisitor.visit_stmt v state stmt (* default *)
+        | Some new_init ->
+          let new_decl = { decl with d = VarDecl (ty, name, Some new_init) } in
+          let new_stmt = { stmt with s = DeclStmt [new_decl] } in
+          map_stmt v state new_stmt
+      end
     | _ -> MapVisitor.visit_stmt v state stmt (* default *)
   in
   let v = MapVisitor.({ default with map_stmt }) in
