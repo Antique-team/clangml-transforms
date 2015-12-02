@@ -105,6 +105,15 @@ let get_relat_or_equal_binop (e: expr) = match e.e with
     end
   | _ -> `None
 
+let get_logic_binop (e: expr) = match e.e with
+  | BinaryOperator (BO_LAnd, e1, e2) ->
+    let _ = Log.debug "get_logic_binop: &&" in
+    `LAnd (e1, e2)
+  | BinaryOperator (BO_LOr, e1, e2) ->
+    let _ = Log.debug "get_logic_binop: ||" in
+    `LOr (e1, e2)
+  | _ -> `None
+
 let get_logical_and (e: expr) = match e.e with
   | BinaryOperator (BO_LAnd, e1, e2) ->
     let _ = Log.debug "get_logical_and" in
